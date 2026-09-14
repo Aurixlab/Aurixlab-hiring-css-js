@@ -1,0 +1,575 @@
+/* ===== AURIXLAB APPLICATION SECTION. Scoped to .axa. ===== */
+.axa{
+  --bg:#030605; --fg:#f2f0eb; --mut:rgba(255,255,255,.6);
+  --gold:#cbbb93; --gold-hi:#e3d8bc; --gold-mid:#9a876a; --gold-lo:#6b5c3a; --gold-dk:#2a2518;
+  --line:rgba(255,255,255,.12); --bad:#d8746a;
+  position:relative; isolation:isolate; overflow:clip;
+  background:var(--bg); color:var(--fg);
+  font-family:"DM Sans",system-ui,sans-serif; font-weight:400;
+  -webkit-font-smoothing:antialiased;
+}
+.axa *,.axa *::before,.axa *::after{box-sizing:border-box; border-radius:0;}
+.axa [hidden]{display:none !important;}
+.axa-wrap{position:relative; z-index:2; width:min(1160px,100% - 2.5rem); margin-inline:auto;}
+@media(max-width:640px){.axa-wrap{width:calc(100% - 2rem);}}
+.axa-panel{position:relative; z-index:1;}
+.axa-live{position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap;}
+.axa-hp{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;}
+
+/* ---------- background layers ---------- */
+.axa-bglayer{position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;}
+.axa-glow{
+  position:absolute; left:50%; top:-20vh; width:min(1500px,135vw); aspect-ratio:2/1;
+  transform:translate(-50%,0);
+  background:radial-gradient(ellipse at 50% 50%,rgba(203,187,147,.17),rgba(203,187,147,.05) 36%,transparent 66%);
+  filter:blur(38px);
+}
+.axa-streaks{
+  position:absolute; left:50%; top:0; width:min(1700px,150vw); height:min(1700px,150vw);
+  transform:translate(-50%,-42%); opacity:0; mix-blend-mode:screen;
+}
+.axa-streaks line{stroke:var(--gold); stroke-width:1.1; vector-effect:non-scaling-stroke;}
+.axa-kinetic{
+  position:absolute; left:0; right:0; top:34vh; display:flex; white-space:nowrap;
+  font-family:"Geist",system-ui,sans-serif; font-weight:800;
+  font-size:clamp(9rem,26vw,24rem); line-height:.8; letter-spacing:-.05em;
+  color:transparent; -webkit-text-stroke:1px rgba(203,187,147,.085);
+  opacity:.85; will-change:transform;
+}
+@supports not ((-webkit-text-stroke: 1px red)){ .axa-kinetic{color:rgba(203,187,147,.05);} }
+
+/* ---------- type ---------- */
+.axa-display{
+  font-family:"Geist",system-ui,sans-serif; font-weight:800;
+  font-size:clamp(3rem,10.5vw,9rem); line-height:.88; letter-spacing:-.045em; margin:0;
+}
+.axa-display-sm{font-size:clamp(2.4rem,7vw,5.6rem);}
+.axa-kicker{margin:0 0 1.5rem; font-size:.82rem; letter-spacing:.015em; color:var(--mut);}
+.axa-kicker-gold{color:var(--gold-mid);}
+.axa-h{font-family:"Geist",system-ui,sans-serif; font-weight:800; font-size:clamp(1.8rem,4vw,2.9rem);
+  line-height:1.02; letter-spacing:-.035em; margin:.5rem 0 0;}
+.axa-stepno{margin:0; font-size:.82rem; color:var(--mut);}
+.axa-stepno-n{color:var(--gold); font-family:"Geist",system-ui,sans-serif; font-weight:800; font-size:.95rem;}
+.axa-note{margin:1.5rem 0 0; color:var(--mut); font-size:.97rem; line-height:1.65;}
+.axa-meta{margin:2rem 0 0; max-width:64ch; color:var(--mut); font-size:1rem; line-height:1.65;}
+.axa-meta-sm{font-size:.93rem;}
+.axa-rule{border:0; border-top:1px solid var(--line); margin:2.2rem 0 0;
+  transform-origin:left center;}
+
+/* ---------- intro ---------- */
+.axa-intro{padding:clamp(8rem,20vh,13rem) 0 clamp(4.5rem,10vh,7.5rem);}
+
+/* Paragraph and blocks share one row. The paragraph fills its column rather than
+   sitting inside a narrow measure, so there is no dead space between the two. */
+.axa-hero-lede{margin:2.8rem 0 0; max-width:34ch; color:var(--fg);
+  font-size:clamp(1.18rem,2.05vw,1.7rem); line-height:1.48; letter-spacing:-.012em;}
+.axa-intro-apply{padding-bottom:clamp(2.5rem,5vh,4rem);}
+.axa-display-role{font-size:clamp(2.6rem,8.5vw,7rem);}
+
+/* ---------- open role ---------- */
+.axa-role{margin-top:4.2rem;}
+.axa-role-head{margin-top:2rem;}
+.axa-role-head .axa-kicker{margin-bottom:1rem;}
+.axa-role-title{font-family:"Geist",system-ui,sans-serif; font-weight:800;
+  font-size:clamp(2.4rem,7vw,5.2rem); line-height:.92; letter-spacing:-.045em; margin:0;}
+.axa-role-meta{margin:1.1rem 0 0; color:var(--gold-hi); font-size:1rem; letter-spacing:.005em;}
+/* Both paragraphs match the intro paragraph in size, on a measure wide enough
+   that the right half of the container is not left empty. The role description
+   carries full contrast, the application overview sits one step back. */
+.axa-role-body{margin:2.4rem 0 0; max-width:62ch; color:var(--fg);
+  font-size:clamp(1.18rem,2.05vw,1.7rem); line-height:1.48; letter-spacing:-.012em;}
+.axa-role-overview{margin:1.9rem 0 0; max-width:62ch; color:var(--mut);
+  font-size:clamp(1.18rem,2.05vw,1.7rem); line-height:1.48; letter-spacing:-.012em;}
+@media(max-width:860px){.axa-role-body,.axa-role-overview{max-width:none;}}
+
+.axa-resume{margin:1.7rem 0 0; font-size:.92rem; color:var(--mut);}
+.axa-link{background:none; border:0; color:var(--gold); font:inherit; cursor:pointer;
+  padding:0; border-bottom:1px solid var(--gold-lo); transition:border-color .25s,color .25s;}
+.axa-link:hover{border-color:var(--gold); color:var(--gold-hi);}
+.axa-sep{color:var(--mut); padding:0 .3rem;}
+
+/* ---------- kinetic reveal ---------- */
+.axa-mask{display:inline-block; overflow:hidden; vertical-align:bottom; padding-bottom:.06em;}
+.axa-word,.axa-char{display:inline-block; will-change:transform;}
+
+/* ---------- CTA ---------- */
+.axa-cta{
+  display:inline-flex; align-items:center; gap:.9rem;
+  margin:3.2rem 0 0; padding:.62rem .62rem .62rem 1.75rem;
+  border-radius:999px; border:1px solid var(--gold-lo); background:transparent;
+  color:var(--fg); font-family:"DM Sans",system-ui,sans-serif; font-size:1rem; cursor:pointer;
+  transition:border-color .35s ease, box-shadow .35s ease;
+}
+.axa-cta:hover,.axa-cta:focus-visible{border-color:var(--gold); box-shadow:0 0 38px -8px rgba(203,187,147,.6);}
+.axa-cta-i{display:grid; place-items:center; width:2.3rem; height:2.3rem; border-radius:999px;
+  background:var(--gold); color:#0a0906; flex:none;
+  transition:transform .38s cubic-bezier(.22,1,.36,1);}
+.axa-cta:hover .axa-cta-i,.axa-cta:focus-visible .axa-cta-i{transform:translateX(5px);}
+.axa-cta[disabled]{opacity:.55; cursor:progress;}
+.axa-cta-lg{padding-left:2.1rem; font-size:1.05rem;}
+.axa-back{background:none; border:0; border-bottom:1px solid var(--line); color:var(--mut);
+  font:inherit; font-size:.95rem; padding:.3rem 0; margin-top:3.2rem; cursor:pointer;
+  transition:color .25s,border-color .25s;}
+.axa-back:hover{color:var(--fg); border-color:var(--gold-lo);}
+/* The step button row. Named apart from the fixed page header, which also
+   used to be called .axa-nav and was dragging this row up to the top. */
+.axa-steps-nav{display:flex; align-items:center; justify-content:space-between;
+  gap:1.5rem; flex-wrap:wrap; margin-top:1rem;}
+.axa-steps-nav:has(.axa-cta:only-child){justify-content:flex-end;}
+@media(max-width:520px){
+  .axa-steps-nav{flex-direction:column-reverse; align-items:stretch; gap:.6rem;}
+  .axa-steps-nav .axa-cta{justify-content:space-between;}
+  .axa-steps-nav .axa-back{align-self:flex-start;}
+}
+
+.axa-restored{display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
+  margin:0 0 2.4rem; padding:.9rem 1.2rem;
+  border:1px solid var(--gold-lo); background:rgba(203,187,147,.05);
+  color:var(--gold-hi); font-size:.9rem;
+  box-shadow:0 0 50px -28px rgba(203,187,147,.8);}
+
+/* ---------- spine ---------- */
+.axa-form-shell{padding:clamp(3rem,7vh,5rem) 0 clamp(5rem,12vh,8rem);
+  border-top:1px solid var(--line);}
+/* The application runs on a narrower column than the intro, so lines break at the
+   edge of the column rather than in the middle of a much wider one. */
+.axa-form-shell .axa-wrap{width:min(880px,100% - 2.5rem);}
+@media(max-width:640px){.axa-form-shell .axa-wrap{width:calc(100% - 2rem);}}
+.axa-spine{position:relative; padding-bottom:2.7rem;}
+.axa-spine-track{position:absolute; left:0; right:0; top:.42rem; height:1px; background:var(--line);}
+.axa-spine-fill{display:block; height:100%; background:linear-gradient(90deg,var(--gold-lo),var(--gold));
+  transform:scaleX(0); transform-origin:left center; box-shadow:0 0 14px rgba(203,187,147,.45);}
+.axa-spine-nodes{display:grid; grid-template-columns:repeat(6,1fr); list-style:none; margin:0; padding:0;}
+.axa-node{display:flex; flex-direction:column; align-items:flex-start; gap:.8rem;
+  background:none; border:0; padding:0; cursor:pointer; font:inherit; color:var(--mut);}
+.axa-node[disabled]{cursor:default; color:rgba(255,255,255,.28);}
+.axa-dot{width:9px; height:9px; background:var(--line); display:block; transition:background .45s;}
+.axa-node-t{font-size:.76rem;}
+.axa-node.is-done .axa-dot{background:var(--gold-mid);}
+.axa-node.is-active{color:var(--fg);}
+.axa-node.is-active .axa-dot{background:var(--gold); animation:axaPulse 3.2s ease-in-out infinite;}
+@keyframes axaPulse{
+  0%,100%{box-shadow:0 0 12px 2px rgba(203,187,147,.42);}
+  50%{box-shadow:0 0 22px 5px rgba(203,187,147,.2);}
+}
+@media(max-width:700px){.axa-node-t{display:none;} .axa-spine{padding-bottom:2rem;}}
+
+/* ---------- fields ---------- */
+.axa-step{padding-top:.4rem;}
+.axa-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 2.4rem; margin-top:.6rem;}
+.axa-span{grid-column:1/-1;}
+@media(max-width:760px){.axa-grid{grid-template-columns:1fr;}}
+
+.axa-f{padding:1.9rem 0 1.5rem; border-bottom:1px solid var(--line);}
+.axa-f label,.axa-f .axa-flabel,.axa-f legend{
+  display:block; font-size:.95rem; line-height:1.55; color:var(--fg); margin-bottom:.9rem;
+  padding:0;}
+.axa-flabel{color:var(--mut);}
+
+/* control wrapper carries the gold underline that draws in on focus */
+.axa-ctl{position:relative;}
+.axa-ctl::after{content:""; position:absolute; left:0; right:0; bottom:0; height:1px;
+  background:var(--gold); transform:scaleX(0); transform-origin:left center;
+  transition:transform .45s cubic-bezier(.22,1,.36,1);}
+.axa-ctl:focus-within::after{transform:scaleX(1);}
+.axa-ctl input,.axa-ctl select,.axa-ctl textarea{
+  width:100%; background:transparent; border:0; border-bottom:1px solid var(--line);
+  color:var(--fg); font:inherit; font-size:1.05rem; padding:.55rem 0;
+  transition:border-color .3s ease;}
+.axa-ctl textarea{font-size:1rem; line-height:1.7; resize:vertical; min-height:7.5rem;}
+.axa-ctl select{appearance:none; cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,var(--gold-mid) 50%),linear-gradient(135deg,var(--gold-mid) 50%,transparent 50%);
+  background-position:calc(100% - 11px) 1.15rem,calc(100% - 6px) 1.15rem;
+  background-size:5px 5px,5px 5px; background-repeat:no-repeat; padding-right:2rem;}
+.axa-ctl select option{background:#0a0c0b; color:var(--fg);}
+.axa-ctl input:focus,.axa-ctl select:focus,.axa-ctl textarea:focus{outline:none;}
+.axa-ctl input:focus-visible,.axa-ctl select:focus-visible,.axa-ctl textarea:focus-visible{
+  outline:1px solid var(--gold-lo); outline-offset:7px;}
+.axa-ctl input::placeholder{color:rgba(255,255,255,.22);}
+.axa-f fieldset{border:0; margin:0; padding:0; min-width:0;}
+.axa-fixed .axa-fixedval{margin:0; font-size:1.05rem; color:var(--gold); padding:.55rem 0;
+  border-bottom:1px solid var(--gold-dk);}
+
+.axa-count{margin:.65rem 0 0; font-size:.8rem; color:rgba(255,255,255,.35);
+  font-variant-numeric:tabular-nums; transition:color .3s;}
+.axa-count.is-near{color:var(--gold);}
+.axa-count.is-over{color:var(--bad);}
+
+.axa-err{margin:.7rem 0 0; font-size:.85rem; color:var(--bad); display:none;}
+.axa-err.is-on{display:block;}
+.axa-err-lg{font-size:.95rem; margin:1.8rem 0 0;}
+.axa-f.is-bad .axa-ctl input,.axa-f.is-bad .axa-ctl select,.axa-f.is-bad .axa-ctl textarea{
+  border-bottom-color:var(--bad);}
+
+/* radios */
+.axa-radios{display:grid; gap:.15rem;}
+.axa-radios-inline{grid-auto-flow:column; justify-content:start; gap:2.5rem;}
+.axa-radio{display:flex; align-items:flex-start; gap:.85rem; cursor:pointer; padding:.65rem 0;
+  color:var(--mut); font-size:.95rem; line-height:1.58; margin:0; transition:color .25s;}
+.axa-radio:hover{color:var(--fg);}
+.axa-radio input{position:absolute; opacity:0; width:1px; height:1px;}
+.axa-mark{flex:none; width:13px; height:13px; margin-top:.38rem; border:1px solid var(--line);
+  transition:border-color .3s, box-shadow .45s, background .3s;}
+.axa-radio:hover .axa-mark{border-color:var(--gold-lo);}
+.axa-radio input:checked ~ .axa-mark{background:var(--gold); border-color:var(--gold);
+  box-shadow:0 0 14px 3px rgba(203,187,147,.42);}
+.axa-radio:has(input:checked){color:var(--fg);}
+.axa-radio input:focus-visible ~ .axa-mark{outline:1px solid var(--gold); outline-offset:4px;}
+
+.axa-checks{display:grid; grid-template-columns:repeat(auto-fill,minmax(15rem,1fr));
+  gap:.15rem 1.6rem; margin-top:.2rem;}
+.axa-check{display:flex; align-items:flex-start; gap:.85rem; cursor:pointer; padding:.55rem 0;
+  color:var(--mut); font-size:.95rem; line-height:1.5; margin:0; transition:color .25s;}
+.axa-check:hover{color:var(--fg);}
+.axa-check input{position:absolute; opacity:0; width:1px; height:1px;}
+.axa-check .axa-mark{margin-top:.3rem;}
+.axa-check input:checked ~ .axa-mark{background:var(--gold); border-color:var(--gold);
+  box-shadow:0 0 14px 3px rgba(203,187,147,.42);}
+.axa-check:has(input:checked){color:var(--fg);}
+.axa-check input:focus-visible ~ .axa-mark{outline:1px solid var(--gold); outline-offset:4px;}
+
+/* ---------- callout ---------- */
+.axa-callout{position:relative; margin:2.5rem 0 .4rem; padding:1.7rem 2rem;
+  border:1px solid var(--gold-lo);
+  background:linear-gradient(180deg,rgba(203,187,147,.075),rgba(203,187,147,.02));
+  box-shadow:0 0 70px -34px rgba(203,187,147,.8);}
+.axa-callout p{margin:0; color:var(--gold-hi); font-size:1rem; line-height:1.68;}
+
+/* ---------- assessment ---------- */
+.axa-sjt{margin-top:1rem;}
+.axa-q{padding:2.1rem 0 1.6rem; border-bottom:1px solid var(--line);}
+.axa-q fieldset{border:0; margin:0; padding:0; min-width:0;}
+.axa-q legend{display:block; padding:0; margin-bottom:1.1rem;}
+.axa-qn{display:block; font-size:.8rem; color:var(--gold-mid); margin-bottom:.6rem;
+  font-variant-numeric:tabular-nums;}
+.axa-qt{display:block; font-size:1rem; line-height:1.65; color:var(--fg);}
+.axa-q.is-bad .axa-qt{color:var(--bad);}
+
+/* ---------- portfolio ---------- */
+.axa-group{position:relative; margin-top:2.7rem; padding:2rem 2rem 1.4rem;
+  border:1px solid var(--line); transition:border-color .45s ease;}
+.axa-group::before{content:""; position:absolute; inset:-1px; pointer-events:none; opacity:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(203,187,147,.16),transparent 62%);
+  transition:opacity .55s ease;}
+.axa-group:hover,.axa-group:focus-within{border-color:var(--gold-lo);}
+.axa-group:hover::before,.axa-group:focus-within::before{opacity:1;}
+.axa-group > *{position:relative;}
+.axa-gh{margin:0; font-family:"Geist",system-ui,sans-serif; font-weight:800; font-size:1.15rem;
+  letter-spacing:-.02em;}
+.axa-gsub{margin:.55rem 0 0; color:var(--mut); font-size:.9rem;}
+.axa-slots{display:grid; grid-template-columns:1fr;}
+.axa-add{display:inline-flex; align-items:center; gap:.75rem; margin:1.5rem 0 .4rem;
+  background:none; border:0; padding:0; cursor:pointer; font:inherit; font-size:.9rem;
+  color:var(--mut); transition:color .3s;}
+.axa-add:hover:not([disabled]){color:var(--gold-hi);}
+.axa-add-i{display:grid; place-items:center; width:1.6rem; height:1.6rem;
+  border:1px solid var(--gold-lo); color:var(--gold); font-size:.95rem; line-height:1;
+  transition:border-color .3s, box-shadow .4s;}
+.axa-add:hover:not([disabled]) .axa-add-i{border-color:var(--gold); box-shadow:0 0 16px -4px rgba(203,187,147,.8);}
+.axa-add-c{color:rgba(255,255,255,.32); font-variant-numeric:tabular-nums;}
+.axa-add[disabled]{cursor:default; color:rgba(255,255,255,.3);}
+.axa-add[disabled] .axa-add-i{opacity:.3;}
+.axa-add:focus-visible{outline:1px solid var(--gold-lo); outline-offset:6px;}
+@media(max-width:640px){.axa-group{padding:1.5rem 1.2rem 1rem;}}
+
+/* ---------- review ---------- */
+.axa-review{margin-top:1.8rem;}
+.axa-rgroup{border-top:1px solid var(--line); padding:1.8rem 0;}
+.axa-rhead{display:flex; align-items:baseline; justify-content:space-between; gap:1.5rem; margin-bottom:1.1rem;}
+.axa-rhead h4{margin:0; font-family:"Geist",system-ui,sans-serif; font-weight:800; font-size:1.05rem;
+  letter-spacing:-.015em;}
+.axa-rrow{display:grid; grid-template-columns:minmax(0,14rem) minmax(0,1fr); gap:.4rem 2.2rem;
+  padding:.62rem 0;}
+.axa-rk{color:var(--mut); font-size:.88rem; line-height:1.55;}
+.axa-rv{font-size:.95rem; line-height:1.62; white-space:pre-wrap; overflow-wrap:anywhere;}
+.axa-rv.is-empty{color:rgba(255,255,255,.28);}
+@media(max-width:760px){.axa-rrow{grid-template-columns:1fr;}}
+
+/* ---------- confirmation ---------- */
+.axa-done{padding:clamp(6rem,18vh,12rem) 0; overflow:hidden;}
+.axa-bloom{position:absolute; left:50%; top:40%; width:min(900px,90vw); aspect-ratio:1;
+  transform:translate(-50%,-50%) scale(.2); opacity:0; pointer-events:none;
+  background:radial-gradient(circle,rgba(203,187,147,.32),transparent 62%); filter:blur(26px);}
+.axa-done-ref{margin:2.2rem 0 0; max-width:46ch; color:var(--mut); font-size:1.04rem; line-height:1.7;}
+.axa-done-ref strong{color:var(--gold); font-weight:400; font-variant-numeric:tabular-nums;}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  .axa *,.axa *::before,.axa *::after{transition-duration:.01ms !important; animation:none !important;}
+  .axa-streaks{display:none;}
+  .axa-div{margin-left:0 !important;}
+  .axa-div-block{transform:none !important; box-shadow:none !important;}
+  .axa-div-block::before{display:none;}
+  .axa-ctl::after{transition:none;}
+}
+
+/* ======================================================================
+   PAGE CHROME. Opening sequence, navigation, sections, footer.
+   ====================================================================== */
+.axa-page{background:#030605; color:#f2f0eb;}
+.axa-vh{position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%);}
+
+/* ---------- opening sequence ---------- */
+.axa-pre{
+  position:fixed; inset:0; z-index:9999; background:#030605;
+  display:grid; place-items:center; overflow:hidden;
+}
+.axa-pre-stage{position:relative; display:grid; place-items:center; padding:0 1.5rem;
+  perspective:1200px;}
+.axa-pre-word{
+  grid-area:1/1; margin:0; text-align:center; will-change:transform,opacity,filter;
+  font-family:"Geist",system-ui,sans-serif; font-weight:800;
+  font-size:clamp(2.2rem,8vw,5.5rem); line-height:1; letter-spacing:-.04em;
+  color:#f2f0eb; opacity:0;
+}
+.axa-pre-word-2{color:#cbbb93;}
+.axa-curtain{position:absolute; inset:0; display:grid; grid-template-columns:repeat(5,1fr);}
+.axa-curtain span{display:block; background:#030605; transform:scaleY(1); transform-origin:top center;}
+.axa-page.is-loading{overflow:hidden;}
+
+/* ---------- navigation ---------- */
+.axa-nav{
+  position:fixed; top:0; left:0; right:0; z-index:900;
+  background:transparent;                       /* never gains a backdrop */
+  transition:transform .55s cubic-bezier(.22,1,.36,1);
+}
+.axa-nav.is-hidden{transform:translateY(-101%);}
+.axa-progress{position:absolute; left:0; right:0; top:0; height:1px; background:rgba(255,255,255,.08);}
+.axa-progress span{display:block; height:100%; width:100%; background:#cbbb93;
+  transform:scaleX(0); transform-origin:left center;}
+.axa-nav-in{
+  width:min(1160px,100% - 2.5rem); margin-inline:auto;
+  display:flex; align-items:center; justify-content:space-between; gap:2rem;
+  padding:1.35rem 0;
+}
+.axa-mark{display:flex; align-items:baseline; gap:.6rem; text-decoration:none; color:#f2f0eb;}
+.axa-mark-t{font-family:"Geist",system-ui,sans-serif; font-weight:800; font-size:1.02rem;
+  letter-spacing:-.02em;}
+.axa-mark-s{font-size:.76rem; color:#9a876a; letter-spacing:.06em;}
+.axa-nav-links{display:flex; gap:2rem;}
+.axa-nav-links a{
+  position:relative; color:rgba(255,255,255,.6); text-decoration:none; font-size:.88rem;
+  padding-bottom:.25rem; transition:color .35s ease;
+}
+.axa-nav-links a::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:1px; background:#cbbb93;
+  transform:scaleX(0); transform-origin:right center; transition:transform .45s cubic-bezier(.22,1,.36,1);
+}
+.axa-nav-links a:hover,.axa-nav-links a:focus-visible,.axa-nav-links a.is-current{color:#f2f0eb;}
+.axa-nav-links a:hover::after,.axa-nav-links a:focus-visible::after,.axa-nav-links a.is-current::after{
+  transform:scaleX(1); transform-origin:left center;}
+.axa-cta-sm{margin:0; padding:.38rem .38rem .38rem 1.15rem; font-size:.88rem; text-decoration:none;}
+.axa-cta-sm .axa-cta-i{width:1.85rem; height:1.85rem;}
+@media(max-width:900px){
+  .axa-nav-links{display:none;}
+  .axa-nav-in{padding:1.05rem 0;}
+}
+
+/* ---------- shared section furniture ---------- */
+.axa-sec{padding:clamp(5rem,13vh,9rem) 0;}
+.axa-sec + .axa-sec{border-top:1px solid rgba(255,255,255,.12);}
+.axa-eyebrow{display:flex; align-items:center; gap:1rem; margin:0 0 2rem;
+  font-size:.8rem; letter-spacing:.06em; color:rgba(255,255,255,.6);}
+.axa-eyebrow-gold{color:#9a876a;}
+.axa-eyebrow-l{display:block; width:clamp(2rem,5vw,4.5rem); height:1px; background:#6b5c3a;
+  transform:scaleX(0); transform-origin:left center;}
+.axa-sec-h{margin:0; font-family:"Geist",system-ui,sans-serif; font-weight:800;
+  font-size:clamp(2.1rem,5.6vw,4.4rem); line-height:.98; letter-spacing:-.042em; max-width:18ch;}
+.axa-sec-lede{margin:2.4rem 0 0; max-width:62ch; color:rgba(255,255,255,.6);
+  font-size:clamp(1.05rem,1.6vw,1.32rem); line-height:1.6;}
+.axa-cols{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:2.6rem; margin:3rem 0 0;}
+.axa-cols p{margin:0; color:rgba(255,255,255,.6); font-size:clamp(1.02rem,1.5vw,1.22rem);
+  line-height:1.68;}
+@media(max-width:820px){.axa-cols{grid-template-columns:1fr; gap:1.6rem;}}
+
+/* ---------- scroll cue ---------- */
+.axa-scrollcue{display:flex; align-items:center; gap:.9rem; margin:4rem 0 0;
+  font-size:.76rem; letter-spacing:.08em; color:rgba(255,255,255,.35);}
+.axa-cue-l{display:block; width:3.5rem; height:1px; background:rgba(255,255,255,.2); position:relative; overflow:hidden;}
+.axa-cue-l::after{content:""; position:absolute; inset:0; background:#cbbb93;
+  animation:axaCue 2.4s cubic-bezier(.6,0,.2,1) infinite;}
+@keyframes axaCue{0%{transform:translateX(-100%);}60%,100%{transform:translateX(100%);}}
+
+/* ---------- the standard ---------- */
+.axa-sec-quote{position:relative;}
+.axa-quote{margin:0; padding:0;}
+.axa-quote p{margin:0; font-family:"Geist",system-ui,sans-serif; font-weight:800;
+  font-size:clamp(1.7rem,4.4vw,3.4rem); line-height:1.06; letter-spacing:-.04em;
+  max-width:20ch; color:#f2f0eb;}
+.axa-quote footer{margin:1.8rem 0 0; font-size:.88rem; color:#9a876a;}
+.axa-quote cite{font-style:normal;}
+
+/* ---------- open role section ---------- */
+.axa-role-sec{padding-bottom:clamp(3rem,6vh,4.5rem);}
+.axa-role{margin-top:0;}
+.axa-role-head{margin-top:0;}
+
+/* ---------- footer ---------- */
+.axa-foot{padding:clamp(5rem,12vh,8rem) 0 3rem; border-top:1px solid rgba(255,255,255,.12);}
+.axa-foot-h{max-width:16ch;}
+.axa-contact{list-style:none; margin:3.4rem 0 0; padding:0;
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0;
+  border-top:1px solid rgba(255,255,255,.12);}
+.axa-contact li{display:flex; flex-direction:column; gap:.75rem;
+  padding:1.7rem 1.8rem 1.7rem 0; border-right:1px solid rgba(255,255,255,.12);}
+.axa-contact li:last-child{border-right:0;}
+.axa-contact li:not(:first-child){padding-left:1.8rem;}
+.axa-contact-k{font-size:.8rem; letter-spacing:.05em; color:#9a876a;}
+.axa-contact-v{color:#f2f0eb; font-size:1rem; line-height:1.5; text-decoration:none;
+  transition:color .3s ease;}
+a.axa-contact-v{border-bottom:1px solid rgba(255,255,255,.12); align-self:flex-start;
+  padding-bottom:.2rem; transition:color .3s ease, border-color .3s ease;}
+a.axa-contact-v:hover{color:#e3d8bc; border-color:#cbbb93;}
+@media(max-width:820px){
+  .axa-contact{grid-template-columns:1fr;}
+  .axa-contact li{border-right:0; border-bottom:1px solid rgba(255,255,255,.12); padding:1.2rem 0;}
+  .axa-contact li:not(:first-child){padding-left:0;}
+  .axa-contact li:last-child{border-bottom:0;}
+}
+
+.axa-foot-base{display:flex; align-items:flex-end; justify-content:space-between; gap:2.5rem;
+  flex-wrap:wrap; margin:4rem 0 0; padding-top:2.4rem; border-top:1px solid rgba(255,255,255,.12);}
+.axa-foot-mark{margin:0; font-family:"Geist",system-ui,sans-serif; font-weight:800;
+  font-size:1.3rem; letter-spacing:-.03em;}
+.axa-foot-tag{margin:.7rem 0 0; color:rgba(255,255,255,.6); font-size:.92rem; max-width:34ch;}
+.axa-foot-links{display:flex; flex-direction:column; align-items:flex-start; gap:1.1rem;}
+.axa-out{display:inline-flex; align-items:center; gap:.6rem; color:#cbbb93; text-decoration:none;
+  font-size:.95rem; border-bottom:1px solid #6b5c3a; padding-bottom:.25rem;
+  transition:color .3s ease, border-color .3s ease;}
+.axa-out i{display:inline-flex; transition:transform .4s cubic-bezier(.22,1,.36,1);}
+.axa-out:hover{color:#e3d8bc; border-color:#cbbb93;}
+.axa-out:hover i{transform:translate(2px,-2px);}
+/* ---------- hero stack ---------- */
+.axa-hero-stack{list-style:none; margin:2.6rem 0 0; padding:0 0 0 1.6rem; position:relative;
+  display:grid; gap:.55rem;}
+.axa-hero-stack::before{content:""; position:absolute; left:0; top:.45rem; bottom:.45rem; width:1px;
+  background:linear-gradient(180deg,var(--gold),var(--gold-lo));
+  box-shadow:0 0 14px rgba(203,187,147,.35);}
+.axa-hero-stack li{color:var(--mut); font-size:clamp(.98rem,1.4vw,1.12rem); line-height:1.5;}
+.axa-hero-cta{margin-top:2.8rem; text-decoration:none;}
+
+/* ---------- sub blocks inside a section ---------- */
+.axa-sub{margin-top:3.4rem; padding-top:2.2rem; border-top:1px solid var(--line);}
+.axa-sub-h{margin:0 0 1.2rem; font-family:"Geist",system-ui,sans-serif; font-weight:800;
+  font-size:clamp(1.25rem,2.4vw,1.8rem); line-height:1.12; letter-spacing:-.032em; max-width:24ch;}
+.axa-sub p{margin:0 0 1.1rem; max-width:58ch; color:var(--mut);
+  font-size:clamp(1rem,1.4vw,1.12rem); line-height:1.66;}
+.axa-sub p:last-child{margin-bottom:0;}
+.axa-sub-close{color:var(--gold-hi) !important; font-family:"Geist",system-ui,sans-serif;
+  font-weight:800; letter-spacing:-.02em;}
+
+/* ---------- how we work cards ---------- */
+.axa-cards{list-style:none; margin:3.4rem 0 0; padding:0;
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0;
+  border-top:1px solid var(--line);}
+.axa-cards > li{padding:2.1rem 2.4rem 2.1rem 0; border-bottom:1px solid var(--line);
+  transition:border-color .45s ease;}
+.axa-cards > li:nth-child(odd){border-right:1px solid var(--line);}
+.axa-cards > li:nth-child(even){padding-left:2.4rem;}
+.axa-cards > li:hover{border-color:rgba(203,187,147,.4);}
+.axa-cards h3{margin:0; font-family:"Geist",system-ui,sans-serif; font-weight:800;
+  font-size:clamp(1.08rem,1.9vw,1.35rem); line-height:1.16; letter-spacing:-.028em;
+  transition:color .4s ease;}
+.axa-cards > li:hover h3{color:var(--gold-hi);}
+.axa-cards p{margin:.9rem 0 0; color:var(--mut); font-size:.98rem; line-height:1.62;}
+@media(max-width:820px){
+  .axa-cards{grid-template-columns:1fr;}
+  .axa-cards > li{padding:1.6rem 0; border-right:0 !important;}
+  .axa-cards > li:nth-child(even){padding-left:0;}
+}
+
+/* ---------- integrity list ---------- */
+.axa-vlist{list-style:none; margin:2.4rem 0 0; padding:0; display:grid; gap:0;
+  grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:3rem;}
+.axa-vlist li{display:flex; align-items:baseline; gap:1rem; padding:.95rem 0;
+  border-bottom:1px solid var(--line); color:var(--fg);
+  font-size:clamp(1rem,1.5vw,1.15rem); line-height:1.4;}
+.axa-vlist li::before{content:""; flex:none; width:6px; height:6px; background:var(--gold);
+  box-shadow:0 0 10px 2px rgba(203,187,147,.45); transform:translateY(-.2em);}
+@media(max-width:700px){.axa-vlist{grid-template-columns:1fr;}}
+
+/* ---------- final call to action ---------- */
+.axa-final{padding-bottom:clamp(5rem,12vh,8rem);}
+.axa-final-h{max-width:16ch;}
+.axa-final-line{margin:2rem 0 0; font-family:"Geist",system-ui,sans-serif; font-weight:800;
+  font-size:clamp(1.2rem,2.2vw,1.6rem); letter-spacing:-.03em; color:var(--gold-hi);}
+.axa-final .axa-cta{margin-top:2.6rem; text-decoration:none;}
+.axa-quote-sm p{font-size:clamp(1.4rem,3.2vw,2.4rem); max-width:24ch;}
+.axa-quote-sm{margin-top:3.4rem;}
+
+.axa-out-inline{font-size:inherit; border-bottom-width:1px;}
+.axa-note-line{margin:2.6rem 0 0; max-width:64ch; color:var(--mut);
+  font-size:clamp(1rem,1.4vw,1.12rem); line-height:1.65;}
+.axa-note-line .axa-out{margin-left:.35rem;}
+.axa-note-line strong{color:var(--fg); font-weight:400;}
+.axa-foot-min{padding-top:clamp(3rem,7vh,4.5rem);}
+.axa-foot-min .axa-foot-base{margin-top:0; border-top:0; padding-top:0;}
+.axa-social{display:flex; gap:1.4rem;}
+.axa-social a{color:rgba(255,255,255,.6); text-decoration:none; font-size:.88rem;
+  transition:color .3s ease;}
+.axa-social a:hover{color:#f2f0eb;}
+.axa-foot-legal{display:flex; gap:1.5rem; flex-wrap:wrap; margin:2.6rem 0 0;
+  font-size:.82rem; color:rgba(255,255,255,.35);}
+.axa-foot-legal a{color:rgba(255,255,255,.35); text-decoration:none; transition:color .3s;}
+.axa-foot-legal a:hover{color:rgba(255,255,255,.6);}
+@media(max-width:820px){.axa-foot-links{align-items:flex-start;}}
+
+/* ---------- focus visibility across the page chrome ---------- */
+.axa-nav a:focus-visible,.axa-out:focus-visible,.axa-social a:focus-visible,
+.axa-contact-v:focus-visible,.axa-foot-legal a:focus-visible{
+  outline:1px solid #6b5c3a; outline-offset:5px;}
+
+@media (prefers-reduced-motion: reduce){
+  .axa-cue-l::after{animation:none; transform:none;}
+  .axa-nav{transition:none;}
+  .axa-pre{display:none;}
+}
+
+/* ---------- open roles ---------- */
+.axa-roles{list-style:none; margin:3.6rem 0 0; padding:0;}
+.axa-rolerow{position:relative; display:grid; grid-template-columns:minmax(0,20rem) minmax(0,1fr);
+  gap:1.5rem 3rem; padding:2.6rem 0; border-top:1px solid var(--line);
+  transition:border-color .5s ease;}
+.axa-rolerow:last-child{border-bottom:1px solid var(--line);}
+.axa-rolerow::before{content:""; position:absolute; left:0; right:0; top:0; bottom:0; opacity:0;
+  pointer-events:none; transition:opacity .55s ease;
+  background:radial-gradient(ellipse at 20% 0%,rgba(203,187,147,.12),transparent 58%);}
+.axa-rolerow:hover,.axa-rolerow:focus-within{border-color:rgba(203,187,147,.4);}
+.axa-rolerow:hover::before,.axa-rolerow:focus-within::before{opacity:1;}
+.axa-rolerow > *{position:relative;}
+.axa-rolerow-t{margin:0; font-family:"Geist",system-ui,sans-serif; font-weight:800;
+  font-size:clamp(1.7rem,3.6vw,2.7rem); line-height:1.02; letter-spacing:-.04em;
+  transition:color .4s ease;}
+.axa-rolerow:hover .axa-rolerow-t{color:var(--gold-hi);}
+.axa-rolerow-m{margin:.8rem 0 0; font-size:.88rem; color:var(--gold-mid);}
+.axa-rolerow-d{margin:0; max-width:52ch; color:var(--mut); font-size:1.04rem; line-height:1.65;}
+.axa-rolerow-meta{display:flex; align-items:center; gap:1.4rem; flex-wrap:wrap; margin:1.4rem 0 0;
+  font-size:.84rem; color:rgba(255,255,255,.35);}
+.axa-rolerow .axa-cta{margin-top:2rem; text-decoration:none;}
+.axa-tag{display:inline-flex; align-items:center; gap:.5rem; padding:.3rem .8rem;
+  border:1px solid var(--line); color:var(--mut); font-size:.78rem; letter-spacing:.02em;}
+.axa-tag-live{border-color:var(--gold-lo); color:var(--gold-hi);}
+.axa-tag-live::before{content:""; width:6px; height:6px; background:var(--gold);
+  box-shadow:0 0 10px 2px rgba(203,187,147,.6); animation:axaPulse 3.2s ease-in-out infinite;}
+@media(max-width:820px){
+  .axa-rolerow{grid-template-columns:1fr; gap:1.2rem;}
+  .axa-rolerow .axa-cta{margin-top:1.6rem;}
+}
+
+/* ---------- pending role ---------- */
+.axa-pending .axa-sec-lede + .axa-sec-lede{margin-top:1.4rem;}
+.axa-pending-acts{display:flex; align-items:center; gap:2.2rem; flex-wrap:wrap; margin-top:.6rem;}
+.axa-pending-acts .axa-cta{text-decoration:none;}
+.axa-link-lg{font-size:.95rem; text-decoration:none; display:inline-block; margin-top:3.2rem;}
+@media(max-width:560px){.axa-link-lg{margin-top:0;}}
+
+/* ---------- back control in the application page nav ---------- */
+.axa-cta-back{padding:.38rem 1.15rem .38rem .38rem;}
+.axa-cta-i-back{margin-right:0;}
+
+/* ---------- application pages ---------- */
+.axa-page-apply .axa-form-shell{border-top:1px solid var(--line);}
+.axa-page-apply .axa-kinetic{top:26vh;}
+/* The confirmation stands alone once the role header is removed, so it needs
+   its own clearance under the fixed navigation. */
+.axa-page-apply .axa-done{padding-top:clamp(9rem,24vh,15rem); min-height:78vh;}
