@@ -852,7 +852,12 @@
     /* mark the section currently in view */
     if (ST) {
       links.forEach(function (a) {
-        var target = document.querySelector(a.getAttribute("href"));
+        /* Application pages point this nav at /careers, a real page rather than
+           an in-page anchor. Passing that to querySelector throws, so only
+           hashes are treated as section targets. */
+        var href = a.getAttribute("href") || "";
+        if (href.charAt(0) !== "#" || href.length < 2) return;
+        var target = document.querySelector(href);
         if (!target) return;
         ST.create({
           trigger: target, start: "top 45%", end: "bottom 45%",
@@ -865,7 +870,9 @@
   /* ---------- anchor links, routed through Lenis when present ---------- */
   $$("[data-axa-anchor]", document).forEach(function (a) {
     a.addEventListener("click", function (e) {
-      var target = document.querySelector(a.getAttribute("href"));
+      var href = a.getAttribute("href") || "";
+      if (href.charAt(0) !== "#" || href.length < 2) return;
+      var target = document.querySelector(href);
       if (!target) return;
       e.preventDefault();
       scrollToY(window.pageYOffset + target.getBoundingClientRect().top - 72);
