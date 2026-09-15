@@ -5,7 +5,7 @@
      THE ONE LINE TO EDIT AFTER DEPLOYING apps-script-doPost.gs.
      Paste the deployed Web App URL (it ends in /exec) between the quotes.
      ====================================================================== */
-  var GOOGLE_SHEETS_ENDPOINT = "https://script.google.com/macros/s/AKfycbzSALXlMapPPHeCsjH4Twu8St3nf6rVGJKTEXB9BbZL1s0_O-Rj1JI765YGp4jYrpIf/exec";
+  var GOOGLE_SHEETS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyPYGStZ1vfiKvjBXb-oYZx_qLipPYPDuYRQe81SyHSkQv8fUj41HxExKdRPlmmz4K2ow/exec";
 
   var DRAFT_KEY_BASE = "axa_application_v2";
   var TOTAL_STEPS = 6;
