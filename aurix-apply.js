@@ -7,6 +7,16 @@
      ====================================================================== */
   var GOOGLE_SHEETS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyPYGStZ1vfiKvjBXb-oYZx_qLipPYPDuYRQe81SyHSkQv8fUj41HxExKdRPlmmz4K2ow/exec";
 
+  /* ======================================================================
+     WHERE A SUCCESSFUL APPLICATION LANDS.
+     Every role sends the candidate to this page once the Sheet has
+     confirmed the write. Set it to "" to keep the old behaviour, which is
+     the confirmation block appearing in place of the form on the same
+     page. The block is still in the markup either way, so nothing breaks
+     if this is turned off.
+     ====================================================================== */
+  var THANKYOU_URL = "/careers/thank-you";
+
   var DRAFT_KEY_BASE = "axa_application_v2";
   var TOTAL_STEPS = 6;
   var MAX_LINKS = 3;
@@ -718,8 +728,40 @@
 
   function succeed(id) {
     clearDraft();
-    $("[data-axa-refid]").textContent = id;
     live.textContent = "Application submitted. Your reference number is " + id + ".";
+
+    /* The thank you page is a separate page, so the reference has to travel.
+       sessionStorage is the primary channel, which keeps the URL clean; the
+       query string is the fallback for a reload or a link that gets shared.
+       The draft is already cleared above, so a candidate who lands on the
+       thank you page and comes back cannot resubmit the same answers. */
+    if (THANKYOU_URL) {
+      var label = (ROLES[ROLE_SLUG] && ROLES[ROLE_SLUG].label) || "";
+      try {
+        sessionStorage.setItem("axa_last_ref", id);
+        sessionStorage.setItem("axa_last_role", label);
+      } catch (e) {}
+      /* If the navigation does not take, for any reason, the candidate must
+         not be left staring at a disabled Submit button on a form whose
+         application has already been written. The confirmation that was
+         always here takes over. */
+      setTimeout(function () { inlineConfirm(id); }, 2500);
+      window.location.assign(
+        THANKYOU_URL + "?ref=" + encodeURIComponent(id) +
+        (label ? "&role=" + encodeURIComponent(label) : "")
+      );
+      return;
+    }
+
+    inlineConfirm(id);
+  }
+
+  /* The original in place confirmation. Reached when THANKYOU_URL is empty,
+     or as the safety net if the redirect to it never happens. */
+  function inlineConfirm(id) {
+    if (done.dataset.shown) return;
+    done.dataset.shown = "1";
+    $("[data-axa-refid]").textContent = id;
     paintSpine(TOTAL_STEPS, true);
 
     var show = function () {
