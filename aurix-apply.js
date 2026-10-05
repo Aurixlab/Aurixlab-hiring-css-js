@@ -459,7 +459,10 @@
     state.maxSeen = Math.max(state.maxSeen, next);
 
     var show = function () {
-      if (from) from.hidden = true;
+      /* Every other part, not only the one being left: on load there is no
+         "from", and a restored draft would otherwise leave part 1 showing
+         above the part the candidate had reached. */
+      $$(".axa-step").forEach(function (s) { if (s !== to) s.hidden = true; });
       if (state.step === 0) { shell.hidden = false; }
       to.hidden = false;
       paintSpine(next);
