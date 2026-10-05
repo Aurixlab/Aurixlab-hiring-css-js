@@ -61,13 +61,14 @@
 
        label      goes into the "position" column in the Sheet
        sjt        the scenario set for that role, or null when not written yet
+       item       what a portfolio link should point at, used in link errors
 
      To add a role: create a Webflow page, paste the application embed with a
      new slug, then add an entry here. Nothing else needs to change.
      ====================================================================== */
   var ROLES = {
-    "video-editor": { label: "Video Editor", sjt: null },
-    "social-media-manager": { label: "Social Media Manager", sjt: null }
+    "video-editor": { label: "Video Editor", sjt: null, item: "video" },
+    "social-media-manager": { label: "Social Media Manager", sjt: null, item: "account, campaign or post" }
   };
 
   /* ======================================================================
@@ -162,6 +163,96 @@
 
   ROLES["video-editor"].sjt = SJT;
 
+  /* ======================================================================
+     SITUATIONAL ASSESSMENT for social-media-manager. Twenty scenarios, same
+     shape as SJT above. If the count changes, update ROLE_COLUMNS in the
+     Apps Script so the Social Media Manager tab stays aligned.
+     ====================================================================== */
+  var SMM_SJT = [
+    { q: "You just scheduled a client’s post, but shortly after it went live you notice it published with the wrong caption or campaign hashtag. There is still time to fix it before too many people see it.",
+      o: ["Wait to see if anyone notices; if the client asks, you will explain then.",
+          "Message the client or team immediately, explain what happened, and correct the post right away.",
+          "Quietly edit the post to fix it without telling anyone, hoping nobody screenshotted the original."] },
+    { q: "You have drafted a batch of upcoming posts for team review. You know a couple of the captions take an unconventional tone. Two colleagues, X and Y, give very different feedback: X is blunt and often harsh, Y is overly polite and rarely critical.",
+      o: ["Ask Y first; if Y’s feedback seems too soft, ask X in person later.",
+          "Ask both for detailed feedback and explicitly ask them to be brutally honest, valuing X’s directness even if it is uncomfortable.",
+          "Rely on quick emoji reactions in Slack. If nobody says anything bad, assume the captions are fine."] },
+    { q: "You discover a scheduling error (wrong platform, wrong timezone, or a broken link) an hour before a major campaign post is due to go live. Fixing it properly takes about two hours. Your marketing lead says it must go live in 30 minutes, no exceptions.",
+      o: ["Let it go live as scheduled, then plan to quietly fix it after.",
+          "Explain candidly: “If we publish now with this error, it will hurt the campaign. Can we get 30 more minutes, or push a placeholder post instead?”",
+          "Apply a quick patch that hides the issue just enough to pass a glance, planning to fix the real problem later."] },
+    { q: "During a content review, a senior team member insists on a posting style or tone you believe will hurt engagement. They are an authority figure, and the rest of the team stays silent.",
+      o: ["Keep your objections to yourself, post it their way, and hope the metrics speak for themselves later.",
+          "Calmly say: “I see where you are coming from, but here is data showing a different tone performs better. Can we test both?”",
+          "Say in front of the team: “I think you are wrong, that tone is bad and will hurt the account.”"] },
+    { q: "You have been growing your own personal content or brand on the side for three weeks. Now your PM needs your full attention this weekend to help finish a rush batch of client content.",
+      o: ["Pause your side project for two days, then return to it once the weekend work is done.",
+          "Tell your manager: “I can help Saturday morning, but I need Sunday for my own project, so I will not be fully available both days.”",
+          "Keep working on your own project all weekend and assume someone else can cover the client work."] },
+    { q: "You are asked to actively manage a platform you have never really worked with before (say, TikTok or LinkedIn). The client’s budget is tight, but they expect solid results in two weeks.",
+      o: ["Post generic, safe content and basic captions, deliver what you can, and hope the client is satisfied.",
+          "Accept with enthusiasm, sketch out a quick plan for learning that platform’s best practices, and set up weekly check-ins to show progress.",
+          "Politely decline: “I am not really a [platform] person, you would be better off hiring someone who specialises in that.”"] },
+    { q: "Your team scheduled a batch of client posts. A teammate set up the final posts, and a wrong link or wrong image size caused several to get flagged or underperform. You had reviewed several other posts in that same batch, but not that one.",
+      o: ["Explain: “It was their post and their mistake. I checked several others but missed that one.” Emphasise it was not your post.",
+          "Tell management: “I missed this in my review pass, so I take responsibility for not catching it, even though it was not the post I set up.”",
+          "Imply you were not really involved with that post and let the blame land entirely on your teammate."] },
+    { q: "Your marketing lead sends you a brief: “Create a content series that captures our core value of integrity.” No examples or further guidance are given.",
+      o: ["Make your best guess (for example, a serious, formal tone), submit it on deadline, and adjust based on feedback.",
+          "Reply: “Could you share an example you like, or tell me which part of integrity matters most: honesty, reliability, something else?”",
+          "Default to generic inspirational stock content without checking your interpretation first."] },
+    { q: "You overhear a client privately telling a coworker they are unhappy with a teammate’s recent content. The teammate has no idea the client feels this way.",
+      o: ["Keep it to yourself, assuming the teammate will hear it eventually, directly from the client.",
+          "Find a way to let your teammate know: “I heard some concerns about the content, wanted you to know so we can address it before it becomes a bigger issue.”",
+          "Mention it to other teammates, but not the person it concerns, hoping someone else handles it."] },
+    { q: "You have been working 10 to 12 hour days for the past two weeks because of overlapping deadlines: a major campaign launch and a large batch of routine content.",
+      o: ["Keep pushing through, and plan to take a full weekend off next month instead of slowing down now.",
+          "Talk to your manager: “I need to hand off part of one project or shift a deadline, otherwise my output and quality will suffer.”",
+          "Quietly let your work quality slip, hoping no one notices, rather than asking for help."] },
+    { q: "It is 2 AM, and a teammate (say, a video editor or designer) is struggling to finish urgent assets for a campaign launching in the morning. It is not really your job, and you are off the clock.",
+      o: ["Send them a quick resource or template, but let them know you cannot stay up to do the hands-on work.",
+          "Jump in to help finish the work, even though it is after hours and not technically your task.",
+          "Stay off duty, send a “good luck” message, and trust them to figure it out."] },
+    { q: "A junior team member presents a batch of drafted posts with several issues (off-brand tone, typos, inconsistent hashtags). You know they are sensitive to criticism.",
+      o: ["Send a group email: “The posts have a few errors, see my notes. Please review before they go out.”",
+          "In a one-to-one, say: “I appreciate the effort. Here are a few specific things to fix so it matches our standards.”",
+          "Fix it yourself overnight and send it to your manager without telling the junior teammate."] },
+    { q: "Your team has been building a long-term content strategy for three weeks. Suddenly, a major client needs an urgent campaign turned around in five days, and your lead says it is all hands on deck.",
+      o: ["Finish one more day on the original project, then switch over to the campaign work.",
+          "Refocus right away, pause the strategy work, join the campaign effort, and document where you left off so it is easy to resume.",
+          "Push back: “The strategy work is halfway done, delaying it will push our other deadline. Can the campaign wait a day?”"] },
+    { q: "You are collaborating with a copywriter on a campaign. They insist on a dark, serious tone, but you believe a light, upbeat style will resonate more with the target audience.",
+      o: ["Keep your objections to yourself, post the writer’s version, and hope the metrics speak for themselves later.",
+          "Calmly say: “I see where you are coming from, but here is data showing an upbeat style keeps engagement higher. Can we test both?”",
+          "Publicly call out the writer: “I think you are wrong, that tone sucks and will hurt the campaign.”"] },
+    { q: "You promised your manager you would grow a client’s account engagement by 30% this sprint. You have made several changes but are not fully sure you have hit the target.",
+      o: ["Estimate based on the changes you made: “I think we are close to 30%, but I do not have the exact number yet.”",
+          "Run a before-and-after check, document the exact percentage improvement, and share a quick report with results.",
+          "Wait until your manager notices the better numbers and let them ask if you hit the goal."] },
+    { q: "It is launch day for a major campaign going live across social platforms. Right after launch, you notice a visible error, like a broken link or wrong caption, and the CEO is already referencing the campaign publicly.",
+      o: ["Panic quietly and message multiple people at once without a clear plan, causing confusion.",
+          "Stay calm and message your team: “We have an issue on the live post, let us pause it or swap to the corrected version.”",
+          "Step away to collect your thoughts and hope someone else catches and fixes it."] },
+    { q: "You told a client you would deliver a finished content calendar by Friday. On Wednesday, you realise your planning file is corrupted, and rebuilding it properly will take all of Thursday. A smaller, rough version would only take a couple of hours.",
+      o: ["Finish the rough version Friday as promised, then quietly rebuild the rest over the weekend, hoping the client does not notice the difference.",
+          "Email the client right away: “I have hit a file issue that delays the full calendar until Monday. I can send a rough version Friday in the meantime.”",
+          "Work all weekend to rebuild everything and deliver it Sunday night without mentioning the issue."] },
+    { q: "A recurring issue keeps coming up where scheduled posts publish at the wrong time or on the wrong account, despite several quick fixes. The team keeps redoing the same posts every few weeks.",
+      o: ["Keep reapplying the same quick fix each time it comes up, just to make the immediate complaints stop.",
+          "Investigate the scheduling process, find the actual cause (for example, a timezone setting or account-switching mistake), and fix it at the source.",
+          "Blame whoever set up the post last: “They should have caught this before it went out.”"] },
+    { q: "You are planning content for a client’s product launch. You have two options: a fully custom, experimental content format (creative but time-consuming) or a proven content format (faster and tested, but less novel).",
+      o: ["Dive into the custom format right away, confident that its uniqueness will impress the client.",
+          "Choose the proven format, deliver a fast and reliable result, then plan a custom version in a later phase once there is more time or budget.",
+          "Create a half-custom, half-template hybrid, which risks looking inconsistent."] },
+    { q: "A new team member has joined and is struggling to get up to speed on your team’s content calendar, brand voice guidelines and scheduling tools. They have asked for help once, but you notice they still hesitate to reach out and are making avoidable mistakes.",
+      o: ["Send them a link to the team’s onboarding docs and brand guidelines, then tell them you are around if they need more help.",
+          "Proactively schedule a one-to-one to walk them through your conventions and brand voice, and check in again in a few days.",
+          "Wait until they come to you again, since you do not want to overwhelm them with too much hand-holding."] }
+  ];
+
+  ROLES["social-media-manager"].sjt = SMM_SJT;
+
   var ROLE = ROLES[ROLE_SLUG] || null;
   var QUESTIONS = ROLE && ROLE.sjt ? ROLE.sjt : [];
 
@@ -180,7 +271,7 @@
       var pad = (n < 10 ? "0" : "") + n;
       html += '<div class="axa-q" data-label="Scenario ' + n + '" data-sjt="' + n + '">' +
         '<fieldset aria-describedby="' + errId + '">' +
-        '<legend><span class="axa-qn">' + pad + " of " + SJT.length + '</span>' +
+        '<legend><span class="axa-qn">' + pad + " of " + QUESTIONS.length + '</span>' +
         '<span class="axa-qt">' + esc(item.q) + "</span></legend>" +
         '<div class="axa-radios">';
       item.o.forEach(function (opt, j) {
@@ -426,7 +517,7 @@
   var FOLDER = /(drive\.google\.com\/drive\/(u\/\d+\/)?folders)|(dropbox\.com\/(sh|scl\/fo)\/)|(onedrive\.live\.com\/\?id=)|(mega\.nz\/folder)|(wetransfer\.com\/downloads)/i;
   function badUrl(v) {
     if (!/^https?:\/\/\S+\.\S+/i.test(v)) return "Enter a full link beginning with https://";
-    if (FOLDER.test(v)) return "This appears to be a folder link. Link to a single video instead.";
+    if (FOLDER.test(v)) return "This appears to be a folder link. Link to a single " + ((ROLE && ROLE.item) || "item") + " instead.";
     return "";
   }
 
@@ -435,6 +526,9 @@
     $$(".axa-f, .axa-q", p).forEach(clearErr);
     var flag = function (wrap, msg) { if (bad.indexOf(wrap) < 0) { bad.push(wrap); setErr(wrap, msg); } };
 
+    /* Portfolio link groups (Video Editor): add-one-at-a-time slots, at least
+       one filled per group. Fields outside a slot are checked like any other
+       part below, which is how the Social Media Manager portfolio validates. */
     if (step === 4) {
       $$("[data-axa-group]", p).forEach(function (g) {
         var slots = $$(".axa-slot", g).filter(function (s) { return !s.hidden; });
@@ -448,7 +542,8 @@
         });
         if (!filled) flag(slots[0], "At least one video link is required in this category.");
       });
-    } else if (step === 5) {
+    }
+    if (step === 5) {
       var v = $("#f-iv").value.trim(), a = $("#f-ia").value.trim();
       if (!v && !a) flag($("#f-ia").closest(".axa-f"), "Provide a video link or an audio link. One of the two is required.");
       [["#f-iv", v], ["#f-ia", a]].forEach(function (pair) {
@@ -461,7 +556,7 @@
       });
       $$("input[required], select[required], textarea[required]", p).forEach(function (el) {
         var wrap = fieldOf(el);
-        if (!wrap || bad.indexOf(wrap) > -1) return;
+        if (!wrap || bad.indexOf(wrap) > -1 || wrap.classList.contains("axa-slot")) return;
         if (el.type === "radio") {
           if (!p.querySelector('input[name="' + el.name + '"]:checked')) flag(wrap, "Select one option.");
           return;
@@ -492,11 +587,14 @@
   }
 
   /* ---------- portfolio slots ---------- */
+  /* Only some roles have link groups, so the list comes from the markup. */
+  var GROUPS = $$("[data-axa-group]").map(function (g) { return g.dataset.axaGroup; });
   function refreshGroup(key) {
     var g = $('[data-axa-group="' + key + '"]');
+    var btn = $('[data-axa-add="' + key + '"]');
+    if (!g || !btn) return;
     var slots = $$(".axa-slot", g);
     var shown = slots.filter(function (s) { return !s.hidden; }).length;
-    var btn = $('[data-axa-add="' + key + '"]');
     $("[data-axa-add-count]", btn).textContent = shown + " of " + MAX_LINKS;
     btn.disabled = shown >= MAX_LINKS;
     $(".axa-add-t", btn).textContent = shown >= MAX_LINKS ? "Maximum reached" : "Add another video";
@@ -619,7 +717,7 @@
       var input = $('[name="' + name + '"]');
       if (input) { var slot = input.closest(".axa-slot"); if (slot) slot.hidden = false; }
     });
-    ["edit", "ae"].forEach(refreshGroup);
+    GROUPS.forEach(refreshGroup);
     $$("[data-axa-count]").forEach(refreshCount);
     state.maxSeen = Math.max(1, Math.min(TOTAL_STEPS, d.__step || 1));
   }
@@ -961,7 +1059,7 @@
 
   /* ---------- init ---------- */
   if (HAS_FORM) {
-    ["edit", "ae"].forEach(refreshGroup);
+    GROUPS.forEach(refreshGroup);
     paintSpine(1);
     /* An application page opens straight on the form, at whichever part the
        candidate last reached. */
