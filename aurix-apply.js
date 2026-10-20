@@ -62,13 +62,18 @@
        label      goes into the "position" column in the Sheet
        sjt        the scenario set for that role, or null when not written yet
        item       what a portfolio link should point at, used in link errors
+       titles     optional names for the six parts, used on the review
+                  screen and read out to screen readers; defaults below
 
      To add a role: create a Webflow page, paste the application embed with a
      new slug, then add an entry here. Nothing else needs to change.
      ====================================================================== */
   var ROLES = {
     "video-editor": { label: "Video Editor", sjt: null, item: "video" },
-    "social-media-manager": { label: "Social Media Manager", sjt: null, item: "account, campaign or post" }
+    "social-media-manager": { label: "Social Media Manager", sjt: null, item: "account, campaign or post" },
+    "ai-creative-specialist": { label: "AI Creative Specialist", sjt: null, item: "piece of work",
+      titles: ["", "Personal information", "AI tools and creative approach", "Situational assessment",
+        "AI portfolio and workflow experiments", "Introduce yourself", "Review and submit"] }
   };
 
   /* ======================================================================
@@ -162,6 +167,9 @@
   ];
 
   ROLES["video-editor"].sjt = SJT;
+  /* The AI Creative Specialist application keeps the Video Editor scenarios
+     unchanged, as its brief specifies. */
+  ROLES["ai-creative-specialist"].sjt = SJT;
 
   /* ======================================================================
      SITUATIONAL ASSESSMENT for social-media-manager. Twenty scenarios, same
@@ -436,7 +444,7 @@
   }
 
   /* ---------- step machine ---------- */
-  var TITLES = ["", "Personal information", "Skills and approach", "Situational assessment",
+  var TITLES = (ROLE && ROLE.titles) || ["", "Personal information", "Skills and approach", "Situational assessment",
     "Portfolio", "Introduce yourself", "Review and submit"];
 
   function panel(n) { return $('[data-axa-step="' + n + '"]'); }
@@ -555,11 +563,14 @@
     } else {
       $$(".axa-checks", p).forEach(function (group) {
         var wrap = group.closest(".axa-f");
+        if (switchedOff(group)) return;
         if (!group.querySelector("input:checked")) flag(wrap, "Select at least one.");
       });
+      /* Disabled controls belong to follow-up questions that are switched off
+         by an earlier answer, so they are neither required nor checked. */
       $$("input[required], select[required], textarea[required]", p).forEach(function (el) {
         var wrap = fieldOf(el);
-        if (!wrap || bad.indexOf(wrap) > -1 || wrap.classList.contains("axa-slot")) return;
+        if (el.disabled || !wrap || bad.indexOf(wrap) > -1 || wrap.classList.contains("axa-slot")) return;
         if (el.type === "radio") {
           if (!p.querySelector('input[name="' + el.name + '"]:checked')) flag(wrap, "Select one option.");
           return;
@@ -567,15 +578,28 @@
         var val = el.value.trim();
         if (!val) { flag(wrap, "This field is required."); return; }
         if (el.tagName === "TEXTAREA") {
-          var words = wordCount(val);
-          if (words > WORD_LIMIT) {
-            flag(wrap, "Please shorten this to " + WORD_LIMIT + " words or fewer. It currently runs to " + words + ".");
+          var words = wordCount(val), limit = limitOf(el);
+          if (words > limit) {
+            flag(wrap, "Please shorten this to " + limit + " words or fewer. It currently runs to " + words + ".");
             return;
           }
         }
         if (el.type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val)) { flag(wrap, "Enter a valid email address."); return; }
         if (el.type === "tel" && val.replace(/\D/g, "").length < 7) { flag(wrap, "Enter a valid phone number."); return; }
         if (el.type === "url") { var m = badUrl(val); if (m) flag(wrap, m); }
+      });
+      /* Optional answers are only checked once something has been entered:
+         a link must still be a single, complete link, and a long answer must
+         still fit its word limit. */
+      $$("textarea:not([required]), input[type=url]:not([required])", p).forEach(function (el) {
+        var wrap = fieldOf(el), val = el.value.trim();
+        if (el.disabled || !val || !wrap || bad.indexOf(wrap) > -1 || wrap.classList.contains("axa-slot")) return;
+        if (el.tagName === "TEXTAREA") {
+          var words = wordCount(val), limit = limitOf(el);
+          if (words > limit) flag(wrap, "Please shorten this to " + limit + " words or fewer. It currently runs to " + words + ".");
+          return;
+        }
+        var m = badUrl(val); if (m) flag(wrap, m);
       });
     }
 
@@ -618,7 +642,9 @@
   });
 
   /* ---------- word counters ---------- */
+  /* 100 words unless the textarea sets its own limit with data-axa-words. */
   var WORD_LIMIT = 100;
+  function limitOf(el) { return parseInt(el.getAttribute("data-axa-words"), 10) || WORD_LIMIT; }
   function wordCount(v) {
     v = (v || "").trim();
     return v ? v.split(/\s+/).length : 0;
@@ -626,11 +652,60 @@
   function refreshCount(out) {
     var el = document.getElementById(out.dataset.axaCount);
     if (!el) return 0;
-    var n = wordCount(el.value);
-    out.textContent = n + " of " + WORD_LIMIT + " words";
-    out.classList.toggle("is-near", n > WORD_LIMIT * 0.85 && n <= WORD_LIMIT);
-    out.classList.toggle("is-over", n > WORD_LIMIT);
+    var n = wordCount(el.value), limit = limitOf(el);
+    out.textContent = n + " of " + limit + " words";
+    out.classList.toggle("is-near", n > limit * 0.85 && n <= limit);
+    out.classList.toggle("is-over", n > limit);
     return n;
+  }
+
+  /* ---------- follow-up questions ----------
+     An element marked data-axa-when="name:First value|Second value" shows only
+     while the control called name holds one of those values (for a checkbox
+     group, while any of them is ticked). While it is hidden its controls are
+     disabled, so they are not validated, not listed on the review screen and
+     not submitted. Whatever was typed stays in the saved draft, in case the
+     candidate changes the earlier answer back. */
+  var CONDS = $$("[data-axa-when]");
+  function switchedOff(el) {
+    for (var c = el.closest("[data-axa-when]"); c; c = c.parentElement && c.parentElement.closest("[data-axa-when]")) {
+      if (c.hidden) return true;
+    }
+    return false;
+  }
+  function chosen(name) {
+    return $$('[name="' + name + '"]').filter(function (el) {
+      if (el.disabled) return false;
+      return (el.type === "radio" || el.type === "checkbox") ? el.checked : !!el.value;
+    }).map(function (el) { return el.value; });
+  }
+  function applyConditions(animate) {
+    /* Document order, so a follow-up nested inside another is decided after
+       its parent has been switched on or off. */
+    CONDS.forEach(function (el) {
+      var spec = el.getAttribute("data-axa-when"), cut = spec.indexOf(":");
+      var want = spec.slice(cut + 1).split("|");
+      var on = chosen(spec.slice(0, cut)).some(function (v) { return want.indexOf(v) > -1; });
+      var was = !el.hidden;
+      el.hidden = !on;
+      $$("input, select, textarea", el).forEach(function (c) { c.disabled = !on; });
+      if (!on) $$(".axa-f, .axa-q", el).forEach(clearErr);
+      if (on && !was && animate && MOTION) {
+        gsap.fromTo(el, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: .45, ease: "power3.out", clearProps: "transform,opacity" });
+      }
+    });
+  }
+
+  /* A box marked data-axa-exclusive ("I have not used any yet") cannot be
+     ticked alongside the others in its group: ticking it clears them, and
+     ticking any of them clears it. */
+  function exclusive(box) {
+    if (!box || box.type !== "checkbox" || !box.checked) return;
+    var group = box.closest(".axa-checks");
+    if (!group) return;
+    $$('input[type="checkbox"]', group).forEach(function (b) {
+      if (b !== box && (box.hasAttribute("data-axa-exclusive") || b.hasAttribute("data-axa-exclusive"))) b.checked = false;
+    });
   }
   $$("[data-axa-count]").forEach(function (out) {
     var el = document.getElementById(out.dataset.axaCount);
@@ -670,6 +745,7 @@
         '</h4><button type="button" class="axa-link" data-axa-goto-edit="' + s + '">Edit</button></div>';
       $$(".axa-f[data-label], .axa-q[data-label]", p).forEach(function (w) {
         if (w.classList.contains("axa-slot") && w.hidden) return;  // unused portfolio slots
+        if (switchedOff(w)) return;  // follow-up question the candidate was not asked
         var v = readValue(w);
         if (!v && w.classList.contains("axa-f") && !w.querySelector("[required]")) return;  // optional and blank
         html += '<div class="axa-rrow"><div class="axa-rk">' + esc(w.dataset.label) + "</div>" +
@@ -721,6 +797,7 @@
       if (input) { var slot = input.closest(".axa-slot"); if (slot) slot.hidden = false; }
     });
     GROUPS.forEach(refreshGroup);
+    applyConditions(false);
     $$("[data-axa-count]").forEach(refreshCount);
     state.maxSeen = Math.max(1, Math.min(TOTAL_STEPS, d.__step || 1));
   }
@@ -728,6 +805,8 @@
 
   var saveTimer;
   var onEdit = function (e) {
+    if (e.type === "change") exclusive(e.target);
+    if (CONDS.length) applyConditions(true);
     var w = fieldOf(e.target); if (w) clearErr(w);
     clearTimeout(saveTimer); saveTimer = setTimeout(saveDraft, 350);
   };
@@ -1063,6 +1142,7 @@
   /* ---------- init ---------- */
   if (HAS_FORM) {
     GROUPS.forEach(refreshGroup);
+    applyConditions(false);
     paintSpine(1);
     /* An application page opens straight on the form, at whichever part the
        candidate last reached. */
