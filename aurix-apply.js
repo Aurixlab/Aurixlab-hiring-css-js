@@ -5,7 +5,7 @@
      THE ONE LINE TO EDIT AFTER DEPLOYING apps-script-doPost.gs.
      Paste the deployed Web App URL (it ends in /exec) between the quotes.
      ====================================================================== */
-  var GOOGLE_SHEETS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyPYGStZ1vfiKvjBXb-oYZx_qLipPYPDuYRQe81SyHSkQv8fUj41HxExKdRPlmmz4K2ow/exec";
+  var GOOGLE_SHEETS_ENDPOINT = "https://script.google.com/macros/s/AKfycbxO9AB2_O0N9NUOgWzypGDGJ8B3Ji8VetksZX6f6Dp7yeQu1ElNNhkYzuM7SKTNnrzcOQ/exec";
 
   /* ======================================================================
      WHERE A SUCCESSFUL APPLICATION LANDS.
