@@ -18,6 +18,8 @@
   var THANKYOU_URL = "/careers/thank-you";
 
   var DRAFT_KEY_BASE = "axa_application_v2";
+  /* Six parts unless the page's markup has a different number of
+     [data-axa-step] panels; the last one is always the review. */
   var TOTAL_STEPS = 6;
   var MAX_LINKS = 3;
 
@@ -54,6 +56,8 @@
 
   var state = { step: 0, maxSeen: 1, sending: false };
   var HAS_FORM = !!form;
+  if (HAS_FORM) TOTAL_STEPS = $$("[data-axa-step]").length || TOTAL_STEPS;
+  var LAST_PART = TOTAL_STEPS - 1;  // the last part with questions; the review follows it
 
   /* ======================================================================
      ROLES. One entry per application page. The page selects its entry with
@@ -73,7 +77,10 @@
     "social-media-manager": { label: "Social Media Manager", sjt: null, item: "account, campaign or post" },
     "ai-creative-specialist": { label: "AI Creative Specialist", sjt: null, item: "piece of work",
       titles: ["", "Personal information", "AI tools and creative approach", "Situational assessment",
-        "AI portfolio and workflow experiments", "Introduce yourself", "Review and submit"] }
+        "AI portfolio and workflow experiments", "Introduce yourself", "Review and submit"] },
+    /* Two parts and a review, no assessment and no introduction recording. */
+    "seo-intern": { label: "SEO Intern", sjt: null, item: "document or page",
+      titles: ["", "Personal information", "SEO knowledge and experience", "Review and submit"] }
   };
 
   /* ======================================================================
@@ -463,7 +470,7 @@
     var to = panel(next);
     var dir = next > state.step ? 1 : -1;
 
-    if (next === 6) buildReview();
+    if (next === TOTAL_STEPS) buildReview();
     state.maxSeen = Math.max(state.maxSeen, next);
 
     var show = function () {
@@ -554,7 +561,8 @@
         if (!filled) flag(slots[0], "At least one video link is required in this category.");
       });
     }
-    if (step === 5) {
+    /* The introduction part (video or audio link) has its own rule. */
+    if ($("#f-iv", p)) {
       var v = $("#f-iv").value.trim(), a = $("#f-ia").value.trim();
       if (!v && !a) flag($("#f-ia").closest(".axa-f"), "Provide a video link or an audio link. One of the two is required.");
       [["#f-iv", v], ["#f-ia", a]].forEach(function (pair) {
@@ -563,7 +571,8 @@
     } else {
       $$(".axa-checks", p).forEach(function (group) {
         var wrap = group.closest(".axa-f");
-        if (switchedOff(group)) return;
+        /* data-axa-optional marks a checkbox question that may be left blank. */
+        if (switchedOff(group) || group.hasAttribute("data-axa-optional")) return;
         if (!group.querySelector("input:checked")) flag(wrap, "Select at least one.");
       });
       /* Disabled controls belong to follow-up questions that are switched off
@@ -739,7 +748,7 @@
   }
   function buildReview() {
     var html = "";
-    for (var s = 1; s <= 5; s++) {
+    for (var s = 1; s <= LAST_PART; s++) {
       var p = panel(s);
       html += '<div class="axa-rgroup"><div class="axa-rhead"><h4>' + TITLES[s] +
         '</h4><button type="button" class="axa-link" data-axa-goto-edit="' + s + '">Edit</button></div>';
@@ -974,7 +983,7 @@
     if (state.sending) return;
     if ($("#axa-hp").value) return;
 
-    for (var s = 1; s <= 5; s++) {
+    for (var s = 1; s <= LAST_PART; s++) {
       if (!validate(s)) { go(s); return; }
     }
     if (GOOGLE_SHEETS_ENDPOINT.indexOf("REPLACE") === 0) {
